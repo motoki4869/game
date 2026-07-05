@@ -45,8 +45,7 @@ export default function PlayerController() {
     let velocityY = store.velocityY + GRAVITY * delta
     velocityY = Math.max(velocityY, TERMINAL_VELOCITY)
 
-    const groundCheckPos = { x: store.position.x, y: store.position.y - 0.05, z: store.position.z }
-    const isGrounded = resolveAxisMovement(store.position, { x: 0, y: -0.05, z: 0 }, getBlock).y >= groundCheckPos.y
+    const isGrounded = resolveAxisMovement(store.position, { x: 0, y: -0.05, z: 0 }, getBlock).y >= store.position.y
 
     if (isGrounded && keys.current['Space']) {
       velocityY = JUMP_VELOCITY
