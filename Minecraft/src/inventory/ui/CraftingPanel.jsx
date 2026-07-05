@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useInventoryStore } from '../inventoryStore.js'
 import { matchRecipe } from '../craftingRecipes.js'
+import { BLOCKS } from '../../constants/blocks.js'
 
 export default function CraftingPanel() {
   const [grid, setGrid] = useState(new Array(9).fill(null))
@@ -60,7 +61,7 @@ export default function CraftingPanel() {
       </button>
       <div className="mt-2 flex gap-1 flex-wrap">
         <p className="w-full text-xs text-gray-400">クリックでクラフト欄に追加:</p>
-        {['coal', 'stick'].map((testItem) => (
+        {[BLOCKS.WOOD, BLOCKS.PLANKS, BLOCKS.STONE, 'stick'].map((testItem) => (
           <button key={testItem} onClick={() => placeInGrid(testItem)} className="px-2 py-1 bg-gray-700 rounded text-xs">
             {testItem}
           </button>
