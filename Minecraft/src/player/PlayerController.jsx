@@ -6,7 +6,8 @@ import { usePlayerStore, DEFAULT_SPAWN_POSITION } from './playerStore.js'
 import { resolveAxisMovement, PLAYER_HEIGHT } from './collision.js'
 import { isBelowVoid } from './void.js'
 
-const MOVE_SPEED = 5
+const MOVE_SPEED = 4.3
+const SPRINT_MULTIPLIER = 1.6
 const GRAVITY = -20
 const TERMINAL_VELOCITY = -30
 const JUMP_VELOCITY = 8
@@ -40,8 +41,10 @@ export default function PlayerController() {
     const sin = Math.sin(yaw)
     const cos = Math.cos(yaw)
 
-    const moveX = (forward * -sin + strafe * cos) * MOVE_SPEED * delta
-    const moveZ = (forward * -cos - strafe * sin) * MOVE_SPEED * delta
+    const sprinting = keys.current['ControlLeft'] && forward > 0
+    const speed = MOVE_SPEED * (sprinting ? SPRINT_MULTIPLIER : 1)
+    const moveX = (forward * -sin + strafe * cos) * speed * delta
+    const moveZ = (forward * -cos - strafe * sin) * speed * delta
 
     let velocityY = store.velocityY + GRAVITY * delta
     velocityY = Math.max(velocityY, TERMINAL_VELOCITY)

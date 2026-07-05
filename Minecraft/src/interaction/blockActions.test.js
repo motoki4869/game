@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { canBreak, computeBreakResult, computePlaceResult, TOOL_TIERS } from './blockActions.js'
+import { canBreak, computeBreakResult, computePlaceResult, breakDurationSeconds, TOOL_TIERS } from './blockActions.js'
 import { BLOCKS } from '../constants/blocks.js'
 
 describe('canBreak', () => {
@@ -58,5 +58,29 @@ describe('computePlaceResult', () => {
     const playerPos = { x: 5, y: 10, z: 5.05 }
     const straddledCell = computePlaceResult({ x: 5, y: 10, z: 4 }, playerPos)
     expect(straddledCell.allowed).toBe(false)
+  })
+})
+
+describe('breakDurationSeconds', () => {
+  it('returns null when the tool tier cannot break the block', () => {
+    expect(breakDurationSeconds(BLOCKS.STONE, 'none')).toBe(null)
+  })
+
+  it('scales with block hardness for bare hands', () => {
+    // DIRT hardness 1 -> 1 * 0.4 = 0.4s
+    expect(breakDurationSeconds(BLOCKS.DIRT, 'none')).toBeCloseTo(0.4, 5)
+    // WOOD hardness 2 -> 0.8s
+    expect(breakDurationSeconds(BLOCKS.WOOD, 'none')).toBeCloseTo(0.8, 5)
+  })
+
+  it('is faster with a sufficient tool tier', () => {
+    const bare = breakDurationSeconds(BLOCKS.WOOD, 'none')
+    const withWood = breakDurationSeconds(BLOCKS.WOOD, 'wood')
+    expect(withWood).toBeLessThan(bare)
+  })
+
+  it('never returns a duration below 0.05s', () => {
+    // LEAVES hardness 0.5 with stone tool would be tiny; clamp to 0.05
+    expect(breakDurationSeconds(BLOCKS.LEAVES, 'stone')).toBeGreaterThanOrEqual(0.05)
   })
 })

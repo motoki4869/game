@@ -16,6 +16,20 @@ export function computeBreakResult(blockId, toolTier) {
   return { success: true, drop: getDrop(blockId) }
 }
 
+const BREAK_TIME_PER_HARDNESS = 0.4
+const MIN_BREAK_DURATION = 0.05
+
+// Returns how long (seconds) holding the mouse takes to break the block,
+// or null when the tool tier is insufficient. A sufficient tool speeds up
+// breaking by (1 + tier value).
+export function breakDurationSeconds(blockId, toolTier) {
+  if (!canBreak(blockId, toolTier)) return null
+  const data = BLOCK_DATA[blockId]
+  if (!data) return null
+  const toolFactor = 1 + (TOOL_TIERS[toolTier] ?? 0)
+  return Math.max(MIN_BREAK_DURATION, (data.hardness * BREAK_TIME_PER_HARDNESS) / toolFactor)
+}
+
 export function computePlaceResult(targetPos, playerPos) {
   const halfWidth = PLAYER_WIDTH / 2
 
