@@ -6,6 +6,7 @@ import { useWorldStore } from '../world/worldStore.js'
 import { computeMobStep } from './mobAI.js'
 import { isNight } from '../survival/dayNight.js'
 import { WORLD_SIZE, WORLD_HEIGHT } from '../world/terrainGenerator.js'
+import { isSolid } from '../constants/blocks.js'
 
 const MAX_MOBS = 5
 const SPAWN_INTERVAL = 15
@@ -13,7 +14,7 @@ const ATTACK_DAMAGE_PER_SECOND = 2
 
 function surfaceHeightAt(x, z, getBlock) {
   for (let y = WORLD_HEIGHT - 1; y >= 0; y--) {
-    if (getBlock(x, y, z) !== 0) return y + 1
+    if (isSolid(getBlock(x, y, z))) return y + 1
   }
   return 0
 }
