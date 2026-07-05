@@ -4,8 +4,8 @@ import { advanceTime, lightIntensityFor } from './dayNight.js'
 import { applyHungerTick, applyStarvationDamage, applyRegeneration } from './health.js'
 import { usePlayerStore } from '../player/playerStore.js'
 
-export function useSurvivalTick() {
-  const timeRef = useRef(0)
+export function useSurvivalTick(initialTime = 0) {
+  const timeRef = useRef(initialTime)
 
   useFrame((_, delta) => {
     timeRef.current = advanceTime(timeRef.current, delta)
