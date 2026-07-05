@@ -2,8 +2,9 @@ import { useEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { PointerLockControls } from '@react-three/drei'
 import { useWorldStore } from '../world/worldStore.js'
-import { usePlayerStore } from './playerStore.js'
+import { usePlayerStore, DEFAULT_SPAWN_POSITION } from './playerStore.js'
 import { resolveAxisMovement, PLAYER_HEIGHT } from './collision.js'
+import { isBelowVoid } from './void.js'
 
 const MOVE_SPEED = 5
 const GRAVITY = -20
@@ -53,6 +54,12 @@ export default function PlayerController() {
 
     const delta3 = { x: moveX, y: velocityY * delta, z: moveZ }
     const nextPos = resolveAxisMovement(store.position, delta3, getBlock)
+
+    if (isBelowVoid(nextPos.y)) {
+      store.respawn(DEFAULT_SPAWN_POSITION)
+      camera.position.set(DEFAULT_SPAWN_POSITION.x, DEFAULT_SPAWN_POSITION.y + EYE_OFFSET, DEFAULT_SPAWN_POSITION.z)
+      return
+    }
 
     const landed = delta3.y < 0 && nextPos.y === store.position.y
     if (landed) velocityY = 0

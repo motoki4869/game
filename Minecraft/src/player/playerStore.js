@@ -3,12 +3,14 @@ import { create } from 'zustand'
 const MAX_HEALTH = 20
 const MAX_HUNGER = 20
 
+export const DEFAULT_SPAWN_POSITION = { x: 32, y: 20, z: 32 }
+
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value))
 }
 
 export const usePlayerStore = create((set, get) => ({
-  position: { x: 32, y: 20, z: 32 },
+  position: DEFAULT_SPAWN_POSITION,
   yaw: 0,
   pitch: 0,
   velocityY: 0,
