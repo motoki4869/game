@@ -63,7 +63,7 @@ export default function App() {
         </div>
         <HUD />
         <Hotbar />
-        {inventoryOpen && <InventoryPanel onClose={() => setInventoryOpen(false)} />}
+        {inventoryOpen && <InventoryPanel />}
       </div>
     </WebGLGate>
   )

@@ -1,7 +1,7 @@
 import { useInventoryStore } from '../inventoryStore.js'
 import CraftingPanel from './CraftingPanel.jsx'
 
-export default function InventoryPanel({ onClose }) {
+export default function InventoryPanel() {
   const inventory = useInventoryStore((s) => s.inventory)
 
   return (

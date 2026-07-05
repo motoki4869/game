@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { generateTerrain, keyFor, WORLD_SIZE, WORLD_HEIGHT } from './terrainGenerator.js'
-import { BLOCKS, isSolid } from '../constants/blocks.js'
+import { BLOCKS } from '../constants/blocks.js'
 
 describe('keyFor', () => {
   it('formats coordinates as "x,y,z"', () => {
