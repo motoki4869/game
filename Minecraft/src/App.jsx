@@ -1,9 +1,13 @@
+import { useEffect, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import WebGLGate from './webgl/WebGLGate.jsx'
 import Chunk from './world/Chunk.jsx'
 import PlayerController from './player/PlayerController.jsx'
 import { useBlockRaycast } from './interaction/useBlockRaycast.js'
 import Mobs from './entities/Mobs.jsx'
+import Hotbar from './inventory/ui/Hotbar.jsx'
+import HUD from './inventory/ui/HUD.jsx'
+import InventoryPanel from './inventory/ui/InventoryPanel.jsx'
 
 function Interaction() {
   useBlockRaycast()
@@ -11,6 +15,16 @@ function Interaction() {
 }
 
 export default function App() {
+  const [inventoryOpen, setInventoryOpen] = useState(false)
+
+  useEffect(() => {
+    function onKeyDown(e) {
+      if (e.code === 'KeyE') setInventoryOpen((open) => !open)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
   return (
     <WebGLGate>
       <div className="w-screen h-screen bg-sky-400 relative">
@@ -25,6 +39,9 @@ export default function App() {
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-1 h-1 bg-white rounded-full" />
         </div>
+        <HUD />
+        <Hotbar />
+        {inventoryOpen && <InventoryPanel onClose={() => setInventoryOpen(false)} />}
       </div>
     </WebGLGate>
   )
