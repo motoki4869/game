@@ -3,6 +3,7 @@ import WebGLGate from './webgl/WebGLGate.jsx'
 import Chunk from './world/Chunk.jsx'
 import PlayerController from './player/PlayerController.jsx'
 import { useBlockRaycast } from './interaction/useBlockRaycast.js'
+import Mobs from './entities/Mobs.jsx'
 
 function Interaction() {
   useBlockRaycast()
@@ -19,6 +20,7 @@ export default function App() {
           <Chunk />
           <PlayerController />
           <Interaction />
+          <Mobs getTime={() => 400} />
         </Canvas>
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-1 h-1 bg-white rounded-full" />
