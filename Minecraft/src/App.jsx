@@ -2,6 +2,12 @@ import { Canvas } from '@react-three/fiber'
 import WebGLGate from './webgl/WebGLGate.jsx'
 import Chunk from './world/Chunk.jsx'
 import PlayerController from './player/PlayerController.jsx'
+import { useBlockRaycast } from './interaction/useBlockRaycast.js'
+
+function Interaction() {
+  useBlockRaycast()
+  return null
+}
 
 export default function App() {
   return (
@@ -12,6 +18,7 @@ export default function App() {
           <directionalLight position={[10, 20, 10]} intensity={0.8} />
           <Chunk />
           <PlayerController />
+          <Interaction />
         </Canvas>
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-1 h-1 bg-white rounded-full" />
