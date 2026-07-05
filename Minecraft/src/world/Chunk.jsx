@@ -9,6 +9,9 @@ export default function Chunk() {
   const overrides = useWorldStore((s) => s.overrides)
   const getBlock = useWorldStore((s) => s.getBlock)
 
+  // Recomputes visible faces over the full world on every block edit (~131k cells).
+  // Acceptable at this world size (64x64x32); would need chunked incremental
+  // re-meshing to scale further.
   const blocksByColor = useMemo(() => {
     const bounds = { minX: 0, maxX: WORLD_SIZE - 1, minY: 0, maxY: WORLD_HEIGHT - 1, minZ: 0, maxZ: WORLD_SIZE - 1 }
     const faces = computeVisibleFaces(bounds, getBlock)

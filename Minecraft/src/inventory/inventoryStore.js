@@ -8,7 +8,7 @@ function addToSlots(slots, itemId, count) {
   let remaining = count
 
   for (let i = 0; i < next.length && remaining > 0; i++) {
-    if (next[i] && next[i].itemId === itemId) {
+    if (next[i] && String(next[i].itemId) === String(itemId)) {
       next[i] = { itemId, count: next[i].count + remaining }
       remaining = 0
     }
@@ -29,7 +29,7 @@ function removeFromSlots(slots, itemId, count) {
   let remaining = count
 
   for (let i = 0; i < next.length && remaining > 0; i++) {
-    if (next[i] && next[i].itemId === itemId) {
+    if (next[i] && String(next[i].itemId) === String(itemId)) {
       const take = Math.min(next[i].count, remaining)
       remaining -= take
       const newCount = next[i].count - take
@@ -42,7 +42,7 @@ function removeFromSlots(slots, itemId, count) {
 
 function countOf(hotbar, inventory, itemId) {
   const all = [...hotbar, ...inventory]
-  return all.reduce((sum, slot) => sum + (slot && slot.itemId === itemId ? slot.count : 0), 0)
+  return all.reduce((sum, slot) => sum + (slot && String(slot.itemId) === String(itemId) ? slot.count : 0), 0)
 }
 
 export const useInventoryStore = create((set, get) => ({
