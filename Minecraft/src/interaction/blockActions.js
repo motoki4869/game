@@ -18,9 +18,25 @@ export function computeBreakResult(blockId, toolTier) {
 
 export function computePlaceResult(targetPos, playerPos) {
   const halfWidth = PLAYER_WIDTH / 2
-  const withinX = Math.abs(targetPos.x - playerPos.x) < halfWidth + 0.5 && Math.floor(targetPos.x) === Math.floor(playerPos.x)
-  const withinZ = Math.floor(targetPos.z) === Math.floor(playerPos.z)
-  const withinY = targetPos.y >= Math.floor(playerPos.y) && targetPos.y <= Math.floor(playerPos.y + PLAYER_HEIGHT)
-  const allowed = !(withinX && withinZ && withinY)
+
+  const playerMinX = playerPos.x - halfWidth
+  const playerMaxX = playerPos.x + halfWidth
+  const playerMinY = playerPos.y
+  const playerMaxY = playerPos.y + PLAYER_HEIGHT
+  const playerMinZ = playerPos.z - halfWidth
+  const playerMaxZ = playerPos.z + halfWidth
+
+  const blockMinX = targetPos.x
+  const blockMaxX = targetPos.x + 1
+  const blockMinY = targetPos.y
+  const blockMaxY = targetPos.y + 1
+  const blockMinZ = targetPos.z
+  const blockMaxZ = targetPos.z + 1
+
+  const overlapsX = playerMinX < blockMaxX && playerMaxX > blockMinX
+  const overlapsY = playerMinY < blockMaxY && playerMaxY > blockMinY
+  const overlapsZ = playerMinZ < blockMaxZ && playerMaxZ > blockMinZ
+
+  const allowed = !(overlapsX && overlapsY && overlapsZ)
   return { allowed }
 }

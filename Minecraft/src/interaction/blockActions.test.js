@@ -51,4 +51,12 @@ describe('computePlaceResult', () => {
     const result = computePlaceResult({ x: 5, y: 10, z: 5 }, { x: 5, y: 10, z: 5 })
     expect(result.allowed).toBe(false)
   })
+
+  it('disallows placing at a block cell the player physically occupies even when straddling a grid boundary', () => {
+    // PLAYER_WIDTH = 0.6, half-width 0.3. Player z=5.05 spans z in [4.75, 5.35],
+    // so it overlaps both the z=4 and z=5 block cells.
+    const playerPos = { x: 5, y: 10, z: 5.05 }
+    const straddledCell = computePlaceResult({ x: 5, y: 10, z: 4 }, playerPos)
+    expect(straddledCell.allowed).toBe(false)
+  })
 })
