@@ -9,6 +9,9 @@ import Hotbar from './inventory/ui/Hotbar.jsx'
 import HUD from './inventory/ui/HUD.jsx'
 import InventoryPanel from './inventory/ui/InventoryPanel.jsx'
 import { useSurvivalTick } from './survival/useSurvivalTick.js'
+import { loadGameOnStartup, useAutoSave } from './persistence/useAutoSave.js'
+
+loadGameOnStartup()
 
 function Interaction() {
   useBlockRaycast()
@@ -25,6 +28,7 @@ function DayNightLight({ getLightIntensity }) {
 
 function Scene() {
   const { getTime, getLightIntensity } = useSurvivalTick()
+  useAutoSave(getTime)
   return (
     <>
       <ambientLight intensity={0.3} />
