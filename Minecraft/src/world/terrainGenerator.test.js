@@ -26,7 +26,7 @@ describe('generateTerrain', () => {
         }
         expect(topY).toBeGreaterThanOrEqual(0)
         const topBlock = world.get(keyFor(x, topY, z))
-        expect([BLOCKS.GRASS, BLOCKS.SAND, BLOCKS.WATER]).toContain(topBlock)
+        expect([BLOCKS.GRASS, BLOCKS.SAND, BLOCKS.WATER, BLOCKS.WOOD, BLOCKS.LEAVES]).toContain(topBlock)
       }
     }
   })
@@ -58,5 +58,41 @@ describe('generateTerrain', () => {
       const block = world.get(keyFor(x, y, z))
       expect(block).toBeDefined()
     }
+  })
+})
+
+describe('tree generation', () => {
+  it('generates some trees (WOOD trunks and LEAVES canopies)', () => {
+    const world = generateTerrain(5)
+    let woodCount = 0
+    let leavesCount = 0
+    for (const value of world.values()) {
+      if (value === BLOCKS.WOOD) woodCount++
+      if (value === BLOCKS.LEAVES) leavesCount++
+    }
+    expect(woodCount).toBeGreaterThan(0)
+    expect(leavesCount).toBeGreaterThan(woodCount)
+  })
+
+  it('tree trunks stand on grass', () => {
+    const world = generateTerrain(5)
+    let checkedABase = false
+    for (const [key, value] of world.entries()) {
+      if (value !== BLOCKS.WOOD) continue
+      const [x, y, z] = key.split(',').map(Number)
+      const below = world.get(keyFor(x, y - 1, z))
+      if (below === BLOCKS.WOOD) continue // upper trunk segment
+      expect(below).toBe(BLOCKS.GRASS)
+      checkedABase = true
+    }
+    expect(checkedABase).toBe(true)
+  })
+
+  it('tree placement is deterministic per seed', () => {
+    const a = generateTerrain(9)
+    const b = generateTerrain(9)
+    const woodKeysA = Array.from(a.entries()).filter(([, v]) => v === BLOCKS.WOOD).map(([k]) => k)
+    const woodKeysB = Array.from(b.entries()).filter(([, v]) => v === BLOCKS.WOOD).map(([k]) => k)
+    expect(woodKeysA).toEqual(woodKeysB)
   })
 })

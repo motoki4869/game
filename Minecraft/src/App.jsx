@@ -78,7 +78,13 @@ export default function App() {
 
   useEffect(() => {
     function onKeyDown(e) {
-      if (e.code === 'KeyE') setInventoryOpen((open) => !open)
+      if (e.code === 'KeyE') {
+        setInventoryOpen((open) => {
+          // Release the mouse when opening so the crafting UI is clickable.
+          if (!open && document.pointerLockElement) document.exitPointerLock()
+          return !open
+        })
+      }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)

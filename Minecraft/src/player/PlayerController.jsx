@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { PointerLockControls } from '@react-three/drei'
+import * as THREE from 'three'
 import { useWorldStore } from '../world/worldStore.js'
 import { usePlayerStore, DEFAULT_SPAWN_POSITION } from './playerStore.js'
 import { resolveAxisMovement, PLAYER_HEIGHT } from './collision.js'
@@ -12,23 +12,53 @@ const GRAVITY = -20
 const TERMINAL_VELOCITY = -30
 const JUMP_VELOCITY = 8
 const EYE_OFFSET = PLAYER_HEIGHT - 0.2
+const LOOK_SENSITIVITY = 0.0022
+const PITCH_LIMIT = Math.PI / 2 - 0.01
+// Chrome's pointer lock occasionally reports one huge spurious delta;
+// anything this large in a single event is noise, not a hand motion.
+const MAX_MOUSE_DELTA = 300
 
 export default function PlayerController() {
-  const { camera } = useThree()
+  const { camera, gl } = useThree()
   const keys = useRef({})
-  const controlsRef = useRef()
+  // Own yaw/pitch state applied as a YXZ euler. Reading yaw back from
+  // camera.rotation (XYZ order) breaks down at steep pitches and reversed
+  // the movement direction — so the look state lives here, not on the camera.
+  const look = useRef({ yaw: 0, pitch: 0 })
+  const euler = useRef(new THREE.Euler(0, 0, 0, 'YXZ'))
   const getBlock = useWorldStore((s) => s.getBlock)
 
   useEffect(() => {
+    const canvas = gl.domElement
+
     const onKeyDown = (e) => { keys.current[e.code] = true }
     const onKeyUp = (e) => { keys.current[e.code] = false }
+    const onClick = () => {
+      if (document.pointerLockElement !== canvas) canvas.requestPointerLock()
+    }
+    const onMouseMove = (e) => {
+      if (document.pointerLockElement !== canvas) return
+      const dx = e.movementX
+      const dy = e.movementY
+      if (Math.abs(dx) > MAX_MOUSE_DELTA || Math.abs(dy) > MAX_MOUSE_DELTA) return
+      look.current.yaw -= dx * LOOK_SENSITIVITY
+      look.current.pitch -= dy * LOOK_SENSITIVITY
+      look.current.pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, look.current.pitch))
+      euler.current.set(look.current.pitch, look.current.yaw, 0)
+      camera.quaternion.setFromEuler(euler.current)
+    }
+
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
+    canvas.addEventListener('click', onClick)
+    document.addEventListener('mousemove', onMouseMove)
     return () => {
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
+      canvas.removeEventListener('click', onClick)
+      document.removeEventListener('mousemove', onMouseMove)
     }
-  }, [])
+  }, [camera, gl])
 
   useFrame((_, delta) => {
     const store = usePlayerStore.getState()
@@ -37,7 +67,7 @@ export default function PlayerController() {
     const forward = (keys.current['KeyW'] ? 1 : 0) - (keys.current['KeyS'] ? 1 : 0)
     const strafe = (keys.current['KeyD'] ? 1 : 0) - (keys.current['KeyA'] ? 1 : 0)
 
-    const yaw = camera.rotation.y
+    const yaw = look.current.yaw
     const sin = Math.sin(yaw)
     const cos = Math.cos(yaw)
 
@@ -69,10 +99,10 @@ export default function PlayerController() {
 
     store.setPosition(nextPos)
     store.setVelocityY(velocityY)
-    store.setLook(camera.rotation.y, camera.rotation.x)
+    store.setLook(look.current.yaw, look.current.pitch)
 
     camera.position.set(nextPos.x, nextPos.y + EYE_OFFSET, nextPos.z)
   })
 
-  return <PointerLockControls ref={controlsRef} />
+  return null
 }
