@@ -14,9 +14,11 @@ const JUMP_VELOCITY = 8
 const EYE_OFFSET = PLAYER_HEIGHT - 0.2
 const LOOK_SENSITIVITY = 0.0022
 const PITCH_LIMIT = Math.PI / 2 - 0.01
-// Chrome's pointer lock occasionally reports one huge spurious delta;
-// anything this large in a single event is noise, not a hand motion.
-const MAX_MOUSE_DELTA = 300
+// Pointer lock implementations (Chrome after locking, embedded browsers
+// like VSCode's) sometimes report huge spurious deltas. Clamp every event
+// to a plausible hand motion so a bad event nudges the view instead of
+// flinging it into the sky.
+const MAX_DELTA_PER_EVENT = 60
 
 export default function PlayerController() {
   const { camera, gl } = useThree()
@@ -30,17 +32,27 @@ export default function PlayerController() {
 
   useEffect(() => {
     const canvas = gl.domElement
+    let skipNextMove = false
 
     const onKeyDown = (e) => { keys.current[e.code] = true }
     const onKeyUp = (e) => { keys.current[e.code] = false }
     const onClick = () => {
       if (document.pointerLockElement !== canvas) canvas.requestPointerLock()
     }
+    const onPointerLockChange = () => {
+      // Browsers often report one bogus jumbo delta right after locking
+      // (the cursor recentering counts as movement) — drop that event.
+      skipNextMove = document.pointerLockElement === canvas
+    }
+    const clampDelta = (v) => Math.max(-MAX_DELTA_PER_EVENT, Math.min(MAX_DELTA_PER_EVENT, v))
     const onMouseMove = (e) => {
       if (document.pointerLockElement !== canvas) return
-      const dx = e.movementX
-      const dy = e.movementY
-      if (Math.abs(dx) > MAX_MOUSE_DELTA || Math.abs(dy) > MAX_MOUSE_DELTA) return
+      if (skipNextMove) {
+        skipNextMove = false
+        return
+      }
+      const dx = clampDelta(e.movementX)
+      const dy = clampDelta(e.movementY)
       look.current.yaw -= dx * LOOK_SENSITIVITY
       look.current.pitch -= dy * LOOK_SENSITIVITY
       look.current.pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, look.current.pitch))
@@ -51,11 +63,13 @@ export default function PlayerController() {
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
     canvas.addEventListener('click', onClick)
+    document.addEventListener('pointerlockchange', onPointerLockChange)
     document.addEventListener('mousemove', onMouseMove)
     return () => {
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
       canvas.removeEventListener('click', onClick)
+      document.removeEventListener('pointerlockchange', onPointerLockChange)
       document.removeEventListener('mousemove', onMouseMove)
     }
   }, [camera, gl])
