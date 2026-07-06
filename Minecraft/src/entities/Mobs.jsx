@@ -60,11 +60,36 @@ export default function Mobs({ getTime }) {
   return (
     <>
       {mobs.map((mob) => (
-        <mesh key={mob.id} position={[mob.position.x, mob.position.y + 0.9, mob.position.z]}>
-          <boxGeometry args={[0.6, 1.8, 0.6]} />
-          <meshStandardMaterial color="#b71c1c" />
-        </mesh>
+        <Zombie key={mob.id} position={mob.position} />
       ))}
     </>
+  )
+}
+
+// Blocky vanilla-zombie silhouette: blue pants, teal shirt, green head/arms.
+function Zombie({ position }) {
+  return (
+    <group position={[position.x, position.y, position.z]}>
+      <mesh position={[0, 0.375, 0]}>
+        <boxGeometry args={[0.5, 0.75, 0.28]} />
+        <meshLambertMaterial color="#2a4a8a" />
+      </mesh>
+      <mesh position={[0, 1.05, 0]}>
+        <boxGeometry args={[0.5, 0.6, 0.28]} />
+        <meshLambertMaterial color="#2f7d6d" />
+      </mesh>
+      <mesh position={[-0.35, 1.05, 0.2]}>
+        <boxGeometry args={[0.2, 0.2, 0.6]} />
+        <meshLambertMaterial color="#4a7a3a" />
+      </mesh>
+      <mesh position={[0.35, 1.05, 0.2]}>
+        <boxGeometry args={[0.2, 0.2, 0.6]} />
+        <meshLambertMaterial color="#4a7a3a" />
+      </mesh>
+      <mesh position={[0, 1.6, 0]}>
+        <boxGeometry args={[0.5, 0.5, 0.5]} />
+        <meshLambertMaterial color="#4a7a3a" />
+      </mesh>
+    </group>
   )
 }
